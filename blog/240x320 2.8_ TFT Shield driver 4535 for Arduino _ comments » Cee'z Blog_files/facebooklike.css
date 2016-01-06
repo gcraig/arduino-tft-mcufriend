@@ -1,0 +1,11 @@
+#widget-fblike h3, #widget-fblike h4 {
+ display:none;
+}
+#fb-root {
+height:5px;
+}
+.fblike {
+height:12px;
+display:inline;
+}
+

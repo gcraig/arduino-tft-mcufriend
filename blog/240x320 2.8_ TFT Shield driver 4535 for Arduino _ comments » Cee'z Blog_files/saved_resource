@@ -1,0 +1,116 @@
+/* For float=[left/center/right] or float *without value* */
+img.floatleft {
+	float:left;
+	padding-right:10px;
+}
+img.floatright {
+	float:right;
+	padding-left:10px;
+}
+img.left {
+	display: block;
+    /*margin-left: auto;*/
+    margin-right: auto;
+}
+img.right {
+	display: block;
+    margin-left: auto;
+    /*margin-right: auto;*/
+}
+img.center {
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+pre {
+  overflow: auto;
+}
+
+/* Toolbar */
+table#toolbar{
+border-spacing: 2px;
+padding: 2px 0;
+margin-left: 3px;
+}
+#toolbar tr, #toolbar tr td, #toolbar tr:hover{
+background: inherit;
+}
+
+/* for color button */
+img#colorbar{
+height: 4px;
+width: 16px;
+background: black;
+}
+
+/* Other specific button */
+td#bbsize{
+vertical-align: middle;
+text-align: center;
+}
+
+/* Separator */
+td#separator, div#bb_separator{
+width:6px;
+background: inherit;
+}
+
+/* General button */
+#toolbar tbody td.bb_button {
+height: 22px;
+border: 0px;
+/* padding: 0 2px; */
+vertical-align: middle;
+text-align: center;
+border-color: inherit;
+background: inherit;
+}
+
+
+/* Button with popup menu */
+td.bb_button_pop{ /* Button - holder */
+width: 12px;
+text-align: right;
+padding: 0px;
+}
+td.bb_button_put{ /* Button - left - Add bbcode tag */
+text-align: right;
+padding: 1px;
+width: 21px;
+}
+div.bb_button_pop{ /* Button - right - show pop up */
+padding: 0px;
+border-width:0px;
+border-left-width:1px;
+
+}
+
+/* Set border */
+div.bb_button, div.bb_button_drop {
+border-width: 1px;
+border-color: #D0D0D0;
+border-style: solid;
+}
+div#colorselector:hover, div.bb_button_drop:hover, div.bb_button:hover, div.bb_button_put:hover, div.bb_button_pop:hover {
+border-color: black;
+cursor: pointer;
+background-color: lightgray;
+border-style: solid;
+}
+
+/*      */
+div.fs-item {
+	display:inline;
+}
+
+div#images_ls{
+	display:block; 
+	position:absolute; 
+	top:50px; left:100px; 
+	z-index:2; 
+	height:350px;
+	width:500px; 
+	background: #FFFF45; 
+	overflow-y: scroll;
+}

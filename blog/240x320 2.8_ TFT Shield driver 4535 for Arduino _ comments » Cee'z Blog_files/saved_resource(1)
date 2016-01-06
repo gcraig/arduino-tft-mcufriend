@@ -1,0 +1,416 @@
+/**
+* editor.js
+* -----------------------------
+* flatpress Editor-Toolbar upgrade for Plugin BB-Code
+* Author: Cee'z
+* E-mail: vuhchuong@gmail.com
+* Feb 15th 2012
+**/
+
+
+
+/* 
+* JQuery - ColorSelector
+* Add a button for color selector
+* How to use:
+* - Put a tag <div id="colorselector">
+* - A nice button will be put inside our div and do the job
+*/
+$(function()
+{
+	// Run script that put a ColorSelector into it's containter
+	$('#colorselector').CColorSelector();
+});
+
+jQuery.fn.CColorSelector = function(args) 
+{
+	var flag = '_ColorSelectorDropDown';
+	var btn_img_path = '';//(bbcode_path)? ( bbcode_path + 'res/'): 'res/';
+	var check1 = false;
+	var check2 = false;
+	var pre_line = 8;   
+	var item_size = 15;  
+	var item_offset = 1;   
+	var offset = 2;   
+	var border_width = 1;   
+    var s_color   =['ff8080','ffff80','80ff80','00ff80','80ffff','0080ff','ff80c0','ff80ff',
+					'ff0000','ffff00','80ff00','00ff40','00ffff','0080c0','8080c0','ff00ff',
+					'804040','ff8040','00ff00','008080','004080','8080ff','800040','ff0080',
+					'800000','ff8000','008000','008040','0000ff','0000a0','800080','8000ff',
+					'400000','804000','004000','004040','000080','000040','400040','408080',
+					'000000','808000','808040','808080','408080','c0c0c0','400040','ffffff'];
+    if(!jQuery.myColorPicker)
+    {
+        var html = '<div><ul>';
+		var result = jQuery('<div id="simple_color_selector" />');
+        for(var c in s_color)
+            html += '<li><a href="javascript:void(\'#'+s_color[c]+'\');" ref="#'+s_color[c]+'" style="background-color:#'+s_color[c]+';"></a></li>';
+		html += '</ul><p style="margin:0;padding:0px;clear:both;text-align:center;"></p></div>';
+        result.html(html);
+		$(document).mouseup(function()
+		{
+			if(check2) {result.hide();check1=false;check2=false;}
+			if(check1) check2=true;
+		}).find('body').append(result);
+        var setColor = function(_color)
+        {
+            if(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.test(_color))
+            {
+                _color = _color.charAt(0) == '#' ? _color : '#' + _color;
+                jQuery.myColorBar.css('background-color',_color); 
+                jQuery.myTarget.val(_color);
+				document.getElementById("colorvalue").value = jQuery.myTarget.val();
+			}
+        }
+        result.hide().css({'position':'absolute','font':'10px verdana','margin':0,'padding':0})
+        .find('div').css({'background-color':'#f2f2f2','border':border_width+'px solid #999','margin':0,'padding':offset})
+        .width(pre_line*(item_size+item_offset*2+border_width*2))
+        .find('ul').css({'margin':0,'padding':0,'list-style':'none'})
+        .find('li').css({'margin':0,'padding':0,'float':'left'})
+        .find('a').css({'margin':item_offset,'padding':0,'display':'block','border':border_width+'px solid #ccc'})
+        .width(item_size).height(item_size)
+        .mousedown(function(){setColor($(this).attr('ref'));cp_closing=true;}) // if color is picked
+        jQuery.myColorPicker = result;
+        if(jQuery.browser.msie && jQuery.browser.version == '6.0')
+            result.find('div').before('<iframe frameborder="0" width="'+result.width()+'" height="'+result.height()+'" style="position:absolute;z-index:-1;"></iframe>');
+    }
+    return this.each(function()
+    {
+		var mySelector = $(this).find("table");		
+		if (mySelector.attr('ref') != flag)
+		{ 
+			$(this).html('<table ref="'+flag+'" style="border-spacing: 0;background-color: inherit;"><tr><td class="bb_button_put;" style="border: 0px;padding: 0px;"><img class="bb_img" id="colorput" src_rep="color.gif" onclick="insBBColor()"><br><img id="colorbar" class="bb_img" src_rep="clear.gif" onclick="insBBColor()"></td><td class="bb_button_pop" style="text-align: right;border: 0px;padding: 0px;"><div class="bb_button_pop"><img class="bb_img" id="colorpop" src_rep="menupop.gif"></td></tr></table>');
+		}
+		
+		var myPutButton = $(this).find("#colorput");
+		var myPopButton = $(this).find("#colorpop");
+		var myColorBar = $(this).find("#colorbar");
+		
+		var myColorValue = myColorBar.after('<input id="colorvalue" type="hidden" >');
+		jQuery.myTarget = myColorValue;
+		if (!jQuery.myTarget.val()) jQuery.myTarget.val('#000000');
+		
+		document.getElementById("colorvalue").value = jQuery.myTarget.val();
+		
+		//now we got the button show up, get the button ready to register mouse click event
+		myPopButton.mousedown(function(e)
+		{
+			if(e.button==0)
+			{
+				var offset = myColorBar.offset();
+				var left = offset.left - border_width*2 ;
+				var top  = offset.top + myColorBar.height() + border_width*2 ;
+				jQuery.myColorBar = myColorBar;
+				jQuery.myColorPicker.show().css({'left':left,'top':top}).val(jQuery.myTarget.val()).focus().select();
+				check1 = true;
+			}
+		});
+    });
+}
+
+
+/* 
+* Basic function to insert BB-Code into TextArea
+*/
+
+// Insert a pair of tags
+function insertAtCursor(element, start_tag, end_tag) {
+	element = document.getElementById(element);
+	if (document.selection) {
+		// IE
+		element.focus();
+		caretPos = document.selection.createRange().duplicate();
+		document.execCommand("insertText", false, start_tag + caretPos.text + end_tag); 
+		//caretPos.text = start_tag + caretPos.text + end_tag;
+		if (caretPos.text.length == 0) {
+			caretPos.moveStart("character", -end_tag.length);
+			caretPos.moveEnd("character", -end_tag.length);
+			caretPos.select();
+		}
+		element.focus(caretPos);    
+	} else if (element.selectionStart || element.selectionStart == '0') {
+	    // MOZILLA
+		element.focus();
+		var startPos = element.selectionStart;
+		var endPos = element.selectionEnd;
+		var preTxt = element.value.substring(0, startPos);
+		var selTxt = element.value.substring(startPos, endPos) ;
+		var follTxt = element.value.substring(endPos, element.value.length);
+		var scrollPos = element.scrollTop;
+		element.value = preTxt + start_tag + selTxt + end_tag + follTxt;
+		if (element.setSelectionRange) {
+			if (selTxt.length == 0) {
+				element.setSelectionRange(startPos + start_tag.length, startPos + start_tag.length);
+			} else {
+				element.setSelectionRange(startPos, startPos + start_tag.length + selTxt.length + end_tag.length);
+			}
+		element.focus();
+		}
+		element.scrollTop = scrollPos;
+	} else {
+		element.value += start_tag + end_tag;
+	}
+}
+
+// Remove BB-Code
+function removeBBCodeFrom(element, start_tag, end_tag) { 
+	element = document.getElementById(element);
+	if (document.selection) {
+		// IE
+		element.focus();
+		caretPos = document.selection.createRange().duplicate();
+		if (caretPos.text.match(start_tag)) 
+			if (caretPos.text.match(end_tag))
+				{
+					caretPos.text = caretPos.text.replace(start_tag,'');
+					caretPos.text = caretPos.text.replace(end_tag,'');
+				}
+		if (caretPos.text.length == 0) {
+			caretPos.moveStart("character", -end_tag.length);
+			caretPos.moveEnd("character", -end_tag.length);
+			caretPos.select();
+		}
+		element.focus(caretPos);    
+	} else if (element.selectionStart || element.selectionStart == '0') {
+	    // MOZILLA
+		element.focus();
+		var startPos = element.selectionStart;
+		var endPos = element.selectionEnd;
+		var preTxt = element.value.substring(0, startPos);
+		var selTxt = element.value.substring(startPos, endPos) ;
+		
+		if (selTxt.match(start_tag)) 
+			if (selTxt.match(end_tag))
+				{
+					selTxt = selTxt.replace(start_tag,'');
+					selTxt = selTxt.replace(end_tag,'');
+				}
+		var follTxt = element.value.substring(endPos, element.value.length);
+		var scrollPos = element.scrollTop;
+		element.value = preTxt + selTxt + follTxt;
+		if (element.setSelectionRange) {
+			if (selTxt.length == 0) {
+				element.setSelectionRange(startPos, startPos);
+			} else {
+				element.setSelectionRange(startPos, startPos + selTxt.length);
+			}
+		element.focus();
+		}
+		element.scrollTop = scrollPos;
+	}  
+} 
+
+// calling the function
+// insertAtCursor(document.formName.fieldName, ‘this value’);
+function insBBColor(color){
+	var element = document.getElementById("colorvalue");
+	insertAtCursor('content', '[COLOR='+ element.value +']','[/COLOR]');
+}
+function insBBAnchor(){
+	insertAtCursor('content', '[ANCHOR=' ,']');
+}
+function insBBEmoticon(emoticon){
+	insertAtCursor('content', '', emoticon);
+}
+function insBBSize(value){
+	insertAtCursor('content', '[SIZE=' + value + ']', '[/SIZE]');
+}
+function insBBCode(code){
+	insertAtCursor('content', '[' + code + ']','[/' + code + ']');
+}
+function insBBCodeValue(code,value){
+	insertAtCursor('content', '[' + code + '=' + value +']', '[/' + code + ']');
+}
+function insImage(val){
+	if (val) insertAtCursor('content', '[IMG='+val+']', '');
+	else insertAtCursor('content', '[IMG=blog/', ']');
+}
+function insList(val){
+	if (val) insertAtCursor('content', '[LIST='+val+']\n[*]', '\n[/LIST]');
+	else insertAtCursor('content', '[LIST]\n[*]', '\n[/LIST]');
+}
+function insBBAlign(val){
+	if (val) insertAtCursor('content', '[ALIGN=' + val + ']', '[/ALIGN]');
+	else insertAtCursor('content', '[ALIGN=LEFT]', '[/ALIGN]');
+}
+function insAttach(val){
+	if (val) insertAtCursor('content', '[attach='+val+']', '[/attach]');
+	else insertAtCursor('content', '[attach=download/]', '[/attach]');
+}
+function insURL(val){
+	if (val) insertAtCursor('content', '[URL='+val+']', '[/URL]');
+	else insertAtCursor('content', '[URL=]', '[/URL]');
+}
+function removeBBCode(){
+	removeBBCodeFrom('content', /\[[^\]]*\]/g, '');
+}
+function outdentBBCode() {
+	removeBBCodeFrom('content', /\[indent\]/i, /\[\/indent\]/i);
+}
+function insHead(val){
+	removeBBCodeFrom('content', /\[H.\]/i, /\[\/H.\]/i); //remove [H*]....[/H*]
+	if (val) insertAtCursor('content', '[H'+val+']', '[/H'+val+']');
+	else insertAtCursor('content', '[H1]', '[/H1]');
+}
+
+// if false, tab move to next element
+var bbcode_editmode = true;
+
+function tabKeyOverrider() {
+	// Observe keypress on these fields
+	if (Event.observe) {
+		Event.observe($('content'), 'keypress', checkTab);
+	}
+}
+
+var bbcode_mode_trapTab = false;
+
+// took from
+// http://www.ajaxian.com/archives/handling-tabs-in-textareas
+// with the 'mode' thingie... I think I'll add more 'trapping' stuff like this for Ctrl+B (bold) etc. 
+// At this time we're just using the altkey function (which is not that bad anyway)
+
+function checkTab(evt) {
+	if (evt.keyCode == Event.KEY_ESC) {
+		if (bbcode_mode_trapTab) {
+			var bar = $('bbcode_statusbar');
+			bar.style.background = 'green';
+			bar.innerHTML = 'Normal mode. Press &lt;Esc&gt; to switch editing mode.';
+			bbcode_mode_trapTab = false;
+		} else {
+			var bar = $('bbcode_statusbar');
+			bar.style.background = 'blue';
+			bar.innerHTML = 'Editing mode. &lt;Tab&gt; is now allowed in the textarea. &lt;Esc&gt; to switch.';
+			bbcode_mode_trapTab = true;
+		}
+	}
+	if (!bbcode_mode_trapTab) {
+		return;
+	}
+	// Set desired tab- defaults to four space softtab
+	var tab = "\t";
+	var t = evt.target;
+	var ss = t.selectionStart;
+	var se = t.selectionEnd;
+	// Tab key - insert tab expansion
+	if (evt.keyCode == 9) {
+		evt.preventDefault();
+		// Special case of multi line selection
+		if (ss != se && t.value.slice(ss,se).indexOf("\n") != -1) {
+			// In case selection was not of entire lines (e.g. selection begins in the middle of a line)
+			// we ought to tab at the beginning as well as at the start of every following line.
+			var pre = t.value.slice(0, ss);
+			var sel = t.value.slice(ss, se).replace(/\n/g, "\n"+tab);
+			var post = t.value.slice(se, t.value.length);
+			t.value = pre.concat(tab).concat(sel).concat(post);
+			t.selectionStart = ss + tab.length;
+			t.selectionEnd = se + tab.length;
+		}
+        // "Normal" case (no selection or selection on one line only)
+        else {
+			t.value = t.value.slice(0, ss).concat(tab).concat(t.value.slice(ss, t.value.length));
+			if (ss == se) {
+				t.selectionStart = t.selectionEnd = ss + tab.length;
+			}
+			else {
+				t.selectionStart = ss + tab.length;
+				t.selectionEnd = se + tab.length;
+			}
+        }
+    }
+}
+
+if (typeof(Event.observe) == 'function') {
+	//prototype is loaded
+	Event.observe(window, 'load', tabKeyOverrider, false)
+}
+
+
+/* 
+* JQuery - Button Image loader
+* Load button image
+*/
+
+$(function()
+{
+	var img_path;
+	if (typeof images_url=="undefined") img_path = location.protocol + '//' + location.host + '/images/toolbar/';
+	else img_path = images_url + 'toolbar/';
+	
+	// Run script that put a put the right path into it's containter
+	$('img.bb_img').each(function()
+	{
+		var _img = $(this).attr('src_rep');
+		$(this).attr('src',img_path + _img);
+		$(this).removeAttr('src_rep');
+	});
+	
+	$('div.bb_separator').html('<img src="'+img_path+'separator.gif" />');
+	$('#content').width($('#content').parent().width());
+	
+	display_fsls(); //load attachs list and images list
+});
+
+var m_attachs_ls_on = false;
+var m_images_ls_on = false;
+
+function hide_ls(){
+	$('#attachs_ls').attr('style','display:none;' );
+	$('#images_ls').attr('style','display:none;' );
+	m_attachs_ls_on = false;
+	m_images_ls_on = false;
+}
+
+function show_attachs_ls() {
+	if (m_images_ls_on) hide_ls();
+	if (!m_attachs_ls_on){
+		$('#attachs_ls').attr('style','display:block;' );
+		m_attachs_ls_on = true;
+	}	else hide_ls();
+}
+
+function show_images_ls() {
+	if (m_attachs_ls_on) hide_ls();
+	if (!m_images_ls_on){
+		$('#images_ls').attr('style','display:block;' );
+		m_images_ls_on = true;
+	}	else hide_ls();	
+}
+if (typeof attachs_ls != 'undefined')
+	var attachs_ls;
+if (typeof images_ls != 'undefined')
+	var images_ls;
+function display_fsls(){
+	for (var key in attachs_ls) {
+		var value = attachs_ls[key];
+		$( '#attachs_ls').append('<div class="fs-item" val="' + value + '" onclick="insAttach(this.getAttribute(\'val\'));hide_ls();">'+key+'</div> ');
+	}
+
+	for (var key in images_ls) {
+		var value = images_ls[key];
+		$( '#images_ls').append('<div class="fs-item" val="' + value + '" onclick="insImage(this.getAttribute(\'val\'));hide_ls();">'+key+'</div> ');
+	}
+	
+}
+
+$(document).ready(function()
+{
+    $("#content").keydown(function(event) {
+	if ($("#content").is(':focus'))
+		if (event.ctrlKey || event.metaKey) {
+			switch (String.fromCharCode(event.which).toLowerCase()) {
+			case 'b':
+				event.preventDefault();
+				insBBCode('B');
+				break;
+			case 'i':
+				event.preventDefault();
+				insBBCode('I');
+				break;
+			}
+		}
+	});
+
+});
+
+
