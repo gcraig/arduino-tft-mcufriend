@@ -20,6 +20,6 @@ Thank you Ceez for your modifications and getting my touchscreen to work with my
 <img src="images/4535shieldbadgoodlib.jpg"><br>
 
 # pinouts and chip notes
-<img src="images/uno_arduino_pins_to_atmel_pins.jpg"><br>
-<img src="images/chip_labels.jpg">
+<img style="width: 50%" src="images/uno_arduino_pins_to_atmel_pins.jpg"><br>
+<img style="width: 50%" src="images/chip_labels.jpg">
 
