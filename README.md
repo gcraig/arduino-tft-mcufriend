@@ -1,7 +1,8 @@
 # Iot - Internet of Things
 # tft-arduino-mcufriend
 
-TFT for Arduino manufactured/distributed by www.mcufriend.com, purchased through Amazon, leveraging 4535 driver chip:<br>
+TFT for Arduino manufactured/distributed by www.mcufriend.com.
+Purchased through Amazon, leveraging 4535 driver chip:<br>
 https://goo.gl/YWbKa9
 
 Modified source code originally developed and found here:<br>
