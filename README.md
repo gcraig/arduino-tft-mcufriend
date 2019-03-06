@@ -1,4 +1,4 @@
-# Iot - Internet of Things
+# Arduino Touchscreen
 # tft-arduino-mcufriend
 
 TFT for Arduino manufactured/distributed by www.mcufriend.com.
